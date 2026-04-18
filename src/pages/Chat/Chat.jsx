@@ -1,665 +1,594 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, MessageCircle, Users, Settings, Zap, Loader2, X, RefreshCw } from 'lucide-react';
+import {
+  Send, Settings, Trash2, Bot, User, ChevronDown,
+  MessageSquare, Key, Loader2, AlertCircle, Sparkles, Users
+} from 'lucide-react';
 import './Chat.css';
-import aiService from '../../services/aiService';
 
-const AGENTS = [
+/* ===== 角色定义（4 个员工）===== */
+const ROLES = [
   {
     id: 'pm',
-    name: '产品经理小李',
-    role: '产品经理',
-    avatar: '👔',
+    name: '产品经理小王',
+    emoji: '🎯',
     color: '#6C5CE7',
-    persona: '你是一名资深产品经理，善于需求分析和产品规划。你说话专业、逻辑清晰，喜欢用产品思维思考问题。',
-    keywords: ['需求', '产品', '功能', '用户', '规划', '设计', '方案', '分析', '市场', '竞品', 'PRD', 'MVP', ' roadmap'],
-    response_templates: {
-      greeting: ['大家好，我是产品经理小李，专注于产品规划和需求分析。', '我是小李，有什么产品规划方面的问题可以问我。'],
-      self_intro: ['我是产品经理小李，负责产品规划和需求分析。我擅长从用户角度思考问题，推动产品迭代。'],
-      career: ['作为产品经理，我每天主要做需求分析、产品规划和跨部门沟通协调。'],
-      technical: ['这个问题我需要和开发团队详细讨论后才能给出方案。', '从产品角度看，我们可以先做个MVP验证一下。'],
-      default: ['这个需求我需要分析一下用户场景。', '好的，我来梳理一下这个需求的优先级。']
-    }
+    desc: '需求分析、用户故事、排期催促',
+    apiKey: 'sk-YLuIge7lmWtuavjgE27IVGLyjiccaTw2nYNE906BaxW9O8YO',
+    systemPrompt: '你是字节跳动的一名产品经理"小王"。说话风格：喜欢用"对齐"、"赋能"、"抓手"、"闭环"等互联网黑话，但也会偶尔吐槽加班。回复要简短自然，像微信群聊一样，不要写长文。每次回复控制在50字以内。',
   },
   {
     id: 'designer',
-    name: '设计师小王',
-    role: 'UI设计师',
-    avatar: '🎨',
+    name: '设计师小李',
+    emoji: '🎨',
     color: '#FD79A8',
-    persona: '你是一名创意十足的UI设计师，关注用户体验和视觉美感。你说话充满创意，喜欢用颜色和形状描述事物。',
-    keywords: ['设计', '颜色', '界面', 'UI', 'UX', '用户体验', '美观', '创意', '图标', '布局', '视觉', '交互', '原型'],
-    response_templates: {
-      greeting: ['嗨！我是设计师小王，专注于让产品变得更好看更好用~', '我是小王，做设计的！有什么视觉体验方面的问题尽管问。'],
-      self_intro: ['我是设计师小王！我热爱让界面变得更美、更易用。设计不仅是外观，更是体验。'],
-      career: ['我平时主要做界面设计、交互优化和视觉规范制定，让产品既美观又好用是我的追求。'],
-      technical: ['技术实现上我没问题，但设计上我想加入一些动效让体验更流畅~', '这个功能的设计我会考虑加入一些渐变色和阴影效果。'],
-      default: ['我觉得可以在颜色和布局上做一些优化~', '这个设计风格可以再活泼一些！']
-    }
+    desc: 'UI/UX、设计规范、配色方案',
+    apiKey: 'sk-9kIx0uxAdmAnuA2pqrsHuNWgTdqKvECw3imxjaCfnMFAfHgw',
+    systemPrompt: '你是字节跳动的一名 UI 设计师"小李"。说话风格：温和但坚持设计原则，会吐槽开发不按设计稿来。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
   },
   {
-    id: 'backend',
-    name: '开发小张',
-    role: '后端工程师',
-    avatar: '💻',
+    id: 'dev',
+    name: '程序员小张',
+    emoji: '💻',
     color: '#00CEC9',
-    persona: '你是一名全栈工程师，技术能力强，喜欢简洁高效的解决方案。你说话直接，有时候会用技术术语。',
-    keywords: ['代码', '开发', '技术', '系统', '数据库', 'API', '架构', '性能', 'bug', '测试', '部署', '服务器', '微服务', '缓存', '并发'],
-    response_templates: {
-      greeting: ['我是开发小张，技术问题找我准没错。', '嗨！我是后端开发，有技术问题可以直接问。'],
-      self_intro: ['我是开发小张，写代码是我的强项。我喜欢简洁高效的解决方案，追求高性能和低耦合的架构。'],
-      career: ['我主要做后端开发，写接口、设计数据库、优化系统性能。偶尔也写点前端代码。'],
-      technical: ['这个在技术层面完全可以实现。', '我建议用缓存来优化性能。', '数据库查询可以优化一下。'],
-      default: ['技术上没问题，我来评估一下实现方案。', '这个功能我来实现，保证性能。']
-    }
+    desc: '技术方案、代码问题、偶尔摸鱼',
+    apiKey: 'sk-0pmKwEVTNk3eKfpSCNAN6eW5c6dv1fYGe4Rotyu1XUsD5WJB',
+    systemPrompt: '你是字节跳动的一名后端程序员"小张"。说话风格：直接、偶尔用技术梗，会吐槽产品经理改需求。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
   },
   {
-    id: 'tester',
+    id: 'qa',
     name: '测试小陈',
-    role: 'QA工程师',
-    avatar: '🧪',
+    emoji: '🧪',
     color: '#FDCB6E',
-    persona: '你是一名细心严谨的测试工程师，关注细节和质量问题。你说话谨慎，喜欢提出质疑和潜在问题。',
-    keywords: ['测试', '质量', 'bug', '问题', '风险', '异常', '边界', '验证', '缺陷', '监控', '日志', '安全', '漏洞'],
-    response_templates: {
-      greeting: ['我是测试小陈，质量把控从我做起。', '嗨！我是QA工程师小陈，有测试和质量方面的问题可以问我。'],
-      self_intro: ['我是测试小陈！我的工作就是找出问题、发现bug，保证产品质量。细节决定成败~'],
-      career: ['我主要负责功能测试、编写测试用例、回归测试，还有上线前的质量把控。'],
-      technical: ['这个功能需要重点测试边界情况和异常场景。', '我先来测试一下，看看有没有bug。'],
-      default: ['这个方案有没有考虑边界情况？', '我需要验证一下这个功能的正确性。', '注意：这个实现可能存在风险，建议增加异常处理。']
-    }
-  }
+    desc: 'Bug 报告、质量把控、边界情况',
+    apiKey: 'sk-F8qyjXL1NHG2JLb8Ql7YXoAbmA416DOHht9GSPVf1PnQtpoh',
+    systemPrompt: '你是字节跳动的一名测试工程师"小陈"。说话风格：认真负责，会列举各种边界情况，偶尔吐槽开发写的代码质量。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
+  },
 ];
 
-function Message({ message, agent }) {
-  const isUser = message.sender === 'user';
-  const isSystem = message.sender === 'system';
+const API_URL = 'https://api.moonshot.cn/v1/chat/completions';
+const DEFAULT_MODEL = 'moonshot-v1-8k';
+const MAX_CONTEXT_MESSAGES = 15;
 
-  if (isSystem) {
-    return (
-      <motion.div
-        className="message system-message"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <span className="system-text">{message.text}</span>
-      </motion.div>
-    );
-  }
+/* ===== 会议室主持人（智能路由）===== */
+const MODERATOR_KEY = 'sk-mZ9AZD1Xb6RHYilRtu1IoMcsN8pGaNIrhzB7KaNevAkrHOfY';
+const MODERATOR_PROMPT = `你是一个职场群聊的主持人。当用户发送一条消息时，你需要判断哪些同事应该回复。
 
-  return (
-    <motion.div
-      className={`message ${isUser ? 'user-message' : 'agent-message'}`}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{ '--agent-color': agent?.color || '#6C5CE7' }}
-    >
-      {!isUser && agent && (
-        <div className="message-avatar" style={{ backgroundColor: agent.color }}>
-          {agent.avatar}
-        </div>
-      )}
-      <div className="message-content">
-        {!isUser && agent && (
-          <div className="message-header">
-            <span className="message-sender">{agent.name}</span>
-            <span className="message-role">{agent.role}</span>
-          </div>
-        )}
-        <div className="message-bubble">
-          {message.text}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+可选的同事及 ID：
+- pm: 产品经理小王（需求、排期、用户反馈、PRD）
+- designer: 设计师小李（UI、设计、配色、设计稿）
+- dev: 程序员小张（技术、代码、Bug、架构）
+- qa: 测试小陈（测试、质量、边界情况）
 
-function AgentPill({ agent, isActive, onClick, unread }) {
-  return (
-    <motion.button
-      className={`agent-pill ${isActive ? 'active' : ''}`}
-      onClick={onClick}
-      style={{ '--agent-color': agent.color }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <span className="agent-pill-avatar" style={{ backgroundColor: agent.color }}>
-        {agent.avatar}
-      </span>
-      <div className="agent-pill-info">
-        <span className="agent-pill-name">{agent.name}</span>
-        <span className="agent-pill-role">{agent.role}</span>
-      </div>
-      {unread > 0 && <span className="agent-pill-badge">{unread}</span>}
-    </motion.button>
-  );
-}
+规则：
+- 根据消息内容判断哪些角色最相关
+- 至少返回 1 个 ID，最多返回 3 个
+- 只返回 ID，用逗号分隔，不要返回其他任何内容
+- 如果消息涉及多个领域，返回多个 ID
 
-export default function Chat() {
-  // 会话管理
-  const [sessions, setSessions] = useState([]);
-  const [currentSessionId, setCurrentSessionId] = useState(null);
-  
-  // 消息和对话状态
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'system',
-      text: '👋 职场 AI 聊天室已启动！选择一个 Agent 进行一对一对话，或开启群聊让所有 Agent 参与讨论。'
-    }
-  ]);
-  const [input, setInput] = useState('');
-  const [selectedAgent, setSelectedAgent] = useState(null);
-  const [isGroupChat, setIsGroupChat] = useState(true);
-  const [isAgentTyping, setIsAgentTyping] = useState(false);
-  const [currentAgent, setCurrentAgent] = useState(null);
-  const [conversationHistory, setConversationHistory] = useState([]);
-  const [currentStream, setCurrentStream] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const [selectedProvider, setSelectedProvider] = useState('kimi');
-  const messagesEndRef = useRef(null);
+示例：
+用户说"这个需求排期怎么排" → pm
+用户说"线上出 Bug 了" → dev, qa
+用户说"技术选型讨论" → cto, dev`;
 
-  const scrollToBottom = (force = false) => {
-    if (messagesEndRef.current) {
-      const messagesContainer = messagesEndRef.current.parentElement;
-      const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100;
-      
-      if (force || isNearBottom) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
-  // 从本地存储加载会话和对话历史
-  useEffect(() => {
-    // 加载会话列表
-    const savedSessions = localStorage.getItem('chatSessions');
-    if (savedSessions) {
-      try {
-        const parsedSessions = JSON.parse(savedSessions);
-        setSessions(parsedSessions);
-        if (parsedSessions.length > 0) {
-          setCurrentSessionId(parsedSessions[0].id);
-        }
-      } catch (error) {
-        console.error('Failed to load sessions from localStorage:', error);
-      }
-    }
-  }, []);
-
-  // 加载当前会话的消息和历史
-  useEffect(() => {
-    if (currentSessionId) {
-      const sessionMessages = localStorage.getItem(`chatMessages_${currentSessionId}`);
-      const sessionHistory = localStorage.getItem(`conversationHistory_${currentSessionId}`);
-      
-      if (sessionMessages) {
-        try {
-          setMessages(JSON.parse(sessionMessages));
-        } catch (error) {
-          console.error('Failed to load session messages:', error);
-        }
-      }
-      
-      if (sessionHistory) {
-        try {
-          setConversationHistory(JSON.parse(sessionHistory));
-        } catch (error) {
-          console.error('Failed to load session history:', error);
-        }
-      }
-    }
-  }, [currentSessionId]);
-
-  // 保存当前会话的消息到本地存储
-  useEffect(() => {
-    if (currentSessionId && messages.length > 1) { // 跳过初始系统消息
-      localStorage.setItem(`chatMessages_${currentSessionId}`, JSON.stringify(messages));
-    }
-  }, [messages, currentSessionId]);
-
-  // 保存当前会话的对话历史到本地存储
-  useEffect(() => {
-    if (currentSessionId && conversationHistory.length > 0) {
-      localStorage.setItem(`conversationHistory_${currentSessionId}`, JSON.stringify(conversationHistory));
-    }
-  }, [conversationHistory, currentSessionId]);
-
-  // 会话管理函数
-  const createNewSession = () => {
-    const newSessionId = Date.now().toString();
-    const newSession = {
-      id: newSessionId,
-      name: `会话 ${sessions.length + 1}`,
-      createdAt: new Date().toISOString()
-    };
-    
-    const updatedSessions = [...sessions, newSession];
-    setSessions(updatedSessions);
-    setCurrentSessionId(newSessionId);
-    
-    // 重置消息和对话历史
-    setMessages([{
-      id: 1,
-      sender: 'system',
-      text: '👋 新会话已创建！开始与 Agent 对话吧。'
-    }]);
-    setConversationHistory([]);
-    
-    // 保存会话到本地存储
-    localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-  };
-
-  const switchSession = (sessionId) => {
-    setCurrentSessionId(sessionId);
-    
-    // 加载对应会话的消息和历史
-    const sessionMessages = localStorage.getItem(`chatMessages_${sessionId}`);
-    const sessionHistory = localStorage.getItem(`conversationHistory_${sessionId}`);
-    
-    if (sessionMessages) {
-      try {
-        setMessages(JSON.parse(sessionMessages));
-      } catch (error) {
-        console.error('Failed to load session messages:', error);
-      }
-    } else {
-      setMessages([{
-        id: 1,
-        sender: 'system',
-        text: '👋 会话已切换！开始与 Agent 对话吧。'
-      }]);
-    }
-    
-    if (sessionHistory) {
-      try {
-        setConversationHistory(JSON.parse(sessionHistory));
-      } catch (error) {
-        console.error('Failed to load session history:', error);
-      }
-    } else {
-      setConversationHistory([]);
-    }
-  };
-
-  const deleteSession = (sessionId) => {
-    if (sessionId === currentSessionId) {
-      // 如果删除当前会话，创建新会话
-      createNewSession();
-    }
-    
-    const updatedSessions = sessions.filter(session => session.id !== sessionId);
-    setSessions(updatedSessions);
-    
-    // 从本地存储删除会话数据
-    localStorage.removeItem(`chatMessages_${sessionId}`);
-    localStorage.removeItem(`conversationHistory_${sessionId}`);
-    localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-  };
-
-  const handleAgentResponse = async (agent, userMessage) => {
-    setIsAgentTyping(true);
-    setApiError(null);
-
-    const agentMessageId = Date.now() + Math.random();
-    const agentMessage = {
-      id: agentMessageId,
-      sender: agent.id,
-      text: '',
-      isStreaming: true
-    };
-
-    setMessages(prev => [...prev, agentMessage]);
-
-    // 构建滑动窗口上下文，只保留最近 15 条消息
-    const recentHistory = conversationHistory.slice(-14); // 预留一个位置给当前消息
-    const history = recentHistory.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-
-    // 添加当前用户消息到历史
-    history.push({ 
-      role: 'user', 
-      content: userMessage 
+/* ===== 流式 API 调用 ===== */
+async function streamChat(apiKey, model, messages, onChunk, onDone, onError) {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model: model || DEFAULT_MODEL, messages, stream: true }),
     });
 
-    try {
-      const stream = aiService.generate(history, agent, selectedProvider);
-      setCurrentStream(stream);
-      setIsGenerating(true);
-
-      let fullResponse = '';
-      for await (const chunk of stream) {
-        fullResponse += chunk;
-        setMessages(prev => prev.map(msg => 
-          msg.id === agentMessageId ? { ...msg, text: fullResponse } : msg
-        ));
-        
-        // 实时滚动
-        setTimeout(scrollToBottom, 50);
-      }
-
-      setMessages(prev => prev.map(msg => 
-        msg.id === agentMessageId ? { ...msg, isStreaming: false } : msg
-      ));
-
-      // 更新对话历史，添加用户消息和 Agent 回复，确保角色区分
-      setConversationHistory(prev => [...prev, 
-        { 
-          role: 'user', 
-          content: userMessage,
-          name: '用户'
-        },
-        { 
-          role: 'assistant', 
-          content: fullResponse,
-          name: agent.name,
-          agentId: agent.id
-        }
-      ]);
-
-      // 确保滚动到底部
-      setTimeout(scrollToBottom, 100);
-
-    } catch (error) {
-      console.error('AI generation error:', error);
-      setApiError(`生成回复失败: ${error.message}`);
-      setMessages(prev => prev.map(msg => 
-        msg.id === agentMessageId ? { ...msg, text: `❌ 生成失败: ${error.message}`, isStreaming: false } : msg
-      ));
-    } finally {
-      setIsAgentTyping(false);
-      setIsGenerating(false);
-      setCurrentStream(null);
+    if (!response.ok) {
+      const errText = await response.text();
+      onError(`API 错误 (${response.status}): ${errText.slice(0, 100)}`);
+      return;
     }
-  };
 
-  const handleSend = async () => {
-    if (!input.trim() || isGenerating) return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-    const userMessage = input.trim();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    const userMsg = {
-      id: Date.now(),
-      sender: 'user',
-      text: userMessage
-    };
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
 
-    setMessages(prev => [...prev, userMsg]);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data: ')) continue;
+        const data = trimmed.slice(6);
+        if (data === '[DONE]') { onDone(); return; }
+        try {
+          const parsed = JSON.parse(data);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) onChunk(content);
+        } catch {}
+      }
+    }
+    onDone();
+  } catch (err) {
+    onError(err.message);
+  }
+}
+
+/* ===== 聊天室组件 ===== */
+export default function Chat() {
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('chat_api_key') || 'sk-mZ9AZD1Xb6RHYilRtu1IoMcsN8pGaNIrhzB7KaNevAkrHOfY');
+  const [model, setModel] = useState(() => localStorage.getItem('chat_model') || DEFAULT_MODEL);
+  const [mode, setMode] = useState('single'); // 'single' | 'group'
+
+  // 1v1 模式状态
+  const [activeRole, setActiveRole] = useState(ROLES[0].id);
+  const [chatHistories, setChatHistories] = useState(() => {
+    const saved = localStorage.getItem('chat_histories');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // 群聊模式状态
+  const [groupMessages, setGroupMessages] = useState([]);
+  const [selectedRoles, setSelectedRoles] = useState(['pm', 'designer', 'dev', 'qa']);
+  const [smartRouting, setSmartRouting] = useState(true);
+  const [routingInfo, setRoutingInfo] = useState('');
+
+  // 通用状态
+  const [input, setInput] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingRole, setStreamingRole] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [error, setError] = useState('');
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const currentRole = ROLES.find(r => r.id === activeRole);
+  const messages = chatHistories[activeRole] || [];
+
+  // 保存到 localStorage
+  useEffect(() => { localStorage.setItem('chat_histories', JSON.stringify(chatHistories)); }, [chatHistories]);
+  useEffect(() => { localStorage.setItem('chat_api_key', apiKey); }, [apiKey]);
+  useEffect(() => { localStorage.setItem('chat_model', model); }, [model]);
+  useEffect(() => { localStorage.setItem('group_messages', JSON.stringify(groupMessages)); }, [groupMessages]);
+  useEffect(() => { localStorage.setItem('selected_roles', JSON.stringify(selectedRoles)); }, [selectedRoles]);
+
+  // 自动滚动
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, groupMessages]);
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  // 初始化群聊数据
+  useEffect(() => {
+    const saved = localStorage.getItem('group_messages');
+    if (saved) setGroupMessages(JSON.parse(saved));
+    const savedRoles = localStorage.getItem('selected_roles');
+    if (savedRoles) setSelectedRoles(JSON.parse(savedRoles));
+  }, []);
+
+  // ===== 1v1 发送 =====
+  const handleSingleSend = useCallback(async () => {
+    if (!input.trim() || isStreaming) return;
+    if (!currentRole?.apiKey) {
+      setError(`${currentRole?.name} 未配置 API Key`);
+      return;
+    }
+    setError('');
+
+    const userMsg = { role: 'user', content: input.trim() };
+    const newMessages = [...messages, userMsg];
     setInput('');
-    
-    // 手动滚动到底部
-    setTimeout(scrollToBottom, 100);
+    setChatHistories(prev => ({ ...prev, [activeRole]: [...newMessages, { role: 'assistant', content: '' }] }));
+    setIsStreaming(true);
 
-    if (isGroupChat) {
-      for (const agent of AGENTS) {
-        setCurrentAgent(agent);
-        await handleAgentResponse(agent, userMessage);
-        setCurrentAgent(null);
+    const apiMessages = [
+      { role: 'system', content: currentRole.systemPrompt },
+      ...newMessages.map(m => ({ role: m.role, content: m.content })),
+    ];
+
+    let fullContent = '';
+    await streamChat(currentRole.apiKey, model, apiMessages,
+      (chunk) => {
+        fullContent += chunk;
+        setChatHistories(prev => ({
+          ...prev,
+          [activeRole]: [...prev[activeRole].slice(0, -1), { role: 'assistant', content: fullContent }],
+        }));
+      },
+      () => setIsStreaming(false),
+      (err) => {
+        setIsStreaming(false);
+        setError(err);
+        setChatHistories(prev => ({ ...prev, [activeRole]: [...prev[activeRole].slice(0, -1)] }));
       }
-    } else if (selectedAgent) {
-      const agent = AGENTS.find(a => a.id === selectedAgent);
-      if (agent) {
-        setCurrentAgent(agent);
-        await handleAgentResponse(agent, userMessage);
-        setCurrentAgent(null);
+    );
+  }, [input, isStreaming, model, messages, activeRole, currentRole]);
+
+  // ===== 群聊发送 =====
+  const handleGroupSend = useCallback(async () => {
+    if (!input.trim() || isStreaming || selectedRoles.length === 0) return;
+    setError('');
+    setRoutingInfo('');
+
+    const userMsg = { id: Date.now(), role: 'user', name: '你', content: input.trim() };
+    const newMessages = [...groupMessages, userMsg];
+    setInput('');
+    setGroupMessages(newMessages);
+    setIsStreaming(true);
+
+    // 确定要回复的角色
+    let rolesToReply = selectedRoles;
+
+    if (smartRouting) {
+      // 主持人 AI 决定谁回复
+      try {
+        setRoutingInfo('🤔 主持人正在分析...');
+        const modResponse = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${MODERATOR_KEY}`,
+          },
+          body: JSON.stringify({
+            model: DEFAULT_MODEL,
+            messages: [
+              { role: 'system', content: MODERATOR_PROMPT },
+              { role: 'user', content: input.trim() },
+            ],
+          }),
+        });
+        const modData = await modResponse.json();
+        const modResult = (modData.choices?.[0]?.message?.content || '').trim();
+        // 解析返回的 ID（支持逗号、空格、换行分隔）
+        const allRoleIds = ROLES.map(r => r.id);
+        const parsedIds = modResult.split(/[,，\s\n]+/).map(s => s.trim()).filter(id => allRoleIds.includes(id));
+        if (parsedIds.length > 0) {
+          rolesToReply = parsedIds;
+          const replyNames = rolesToReply.map(id => ROLES.find(r => r.id === id)?.name).join('、');
+          setRoutingInfo(`🎯 主持人指定了 ${replyNames} 回复`);
+        } else {
+          // 主持人没返回有效 ID，fallback 到所有角色
+          setRoutingInfo('⚠️ 主持人未能判断，全部同事回复');
+        }
+      } catch (err) {
+        // 主持人分析失败，fallback
+        setRoutingInfo('⚠️ 主持人分析失败，全部同事回复');
       }
     }
-  };
 
-  const handleCancelGeneration = () => {
-    if (currentStream) {
-      // 这里可以添加取消逻辑，具体实现取决于 AI 服务
-      setIsGenerating(false);
-      setCurrentStream(null);
-      setIsAgentTyping(false);
+    // 串行调用每个要回复的角色
+    for (const roleId of rolesToReply) {
+      const role = ROLES.find(r => r.id === roleId);
+      if (!role || !role.apiKey) continue;
+
+      setStreamingRole(roleId);
+
+      // 添加占位消息
+      const placeholderId = Date.now() + roleId;
+      setGroupMessages(prev => [...prev, { id: placeholderId, role: roleId, name: role.name, emoji: role.emoji, color: role.color, content: '' }]);
+
+      // 构建上下文：滑动窗口取最近 N 条
+      const contextMessages = newMessages.slice(-MAX_CONTEXT_MESSAGES);
+      const apiMessages = [
+        {
+          role: 'system',
+          content: `${role.systemPrompt}\n\n你正在一个职场群聊中。以下是群聊记录，请根据上下文用你的角色风格回复。注意：你只能以"${role.name}"的身份发言，不要模仿其他人。`,
+        },
+        ...contextMessages.map(m => ({
+          role: m.role === 'user' ? 'user' : 'assistant',
+          content: `${m.name || '你'}: ${m.content}`,
+        })),
+      ];
+
+      let fullContent = '';
+      await new Promise((resolve) => {
+        streamChat(role.apiKey, model, apiMessages,
+          (chunk) => {
+            fullContent += chunk;
+            setGroupMessages(prev => prev.map(m =>
+              m.id === placeholderId ? { ...m, content: fullContent } : m
+            ));
+          },
+          () => resolve(),
+          (err) => {
+            setError(err);
+            setGroupMessages(prev => prev.filter(m => m.id !== placeholderId));
+            resolve();
+          }
+        );
+      });
     }
-  };
 
-  const handleAgentSelect = (agentId) => {
-    if (selectedAgent === agentId) {
-      setSelectedAgent(null);
-      setIsGroupChat(true);
+    setStreamingRole(null);
+    setIsStreaming(false);
+  }, [input, isStreaming, model, groupMessages, selectedRoles, smartRouting]);
+
+  const handleSend = mode === 'group' ? handleGroupSend : handleSingleSend;
+
+  const handleClear = () => {
+    if (mode === 'single') {
+      setChatHistories(prev => ({ ...prev, [activeRole]: [] }));
     } else {
-      setSelectedAgent(agentId);
-      setIsGroupChat(false);
+      setGroupMessages([]);
     }
   };
 
-  const handleProviderChange = (provider) => {
-    setSelectedProvider(provider);
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      sender: 'system',
-      text: `🔄 已切换到 ${provider === 'kimi' ? 'Kimi' : 'Minimax'} AI 服务`
-    }]);
+  const toggleRole = (roleId) => {
+    setSelectedRoles(prev =>
+      prev.includes(roleId)
+        ? prev.filter(r => r !== roleId)
+        : [...prev, roleId]
+    );
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const displayMessages = mode === 'group' ? groupMessages : messages.map((m, i) => ({
+    ...m,
+    id: i,
+    name: m.role === 'user' ? '你' : currentRole.name,
+    emoji: m.role === 'user' ? null : currentRole.emoji,
+    color: m.role === 'user' ? null : currentRole.color,
+  }));
 
   return (
-    <motion.div
-      className="chat-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className="chat-page">
+      {/* Header */}
       <section className="chat-header">
         <div className="container">
-          <motion.h1
-            className="chat-title"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <MessageCircle size={32} />
-            职场 AI 聊天室
-            <span className="chat-badge">智能 Agent</span>
+          <motion.h1 className="chat-title" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <MessageSquare size={28} />
+            AI 同事聊天室
+            <span className="chat-badge">职场模拟</span>
           </motion.h1>
-          <motion.p
-            className="chat-subtitle"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            {isGroupChat ? '群聊模式：所有 Agent 参与讨论' : '单聊模式：选择一个 Agent 深入交流'}
+          <motion.p className="chat-subtitle" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            {mode === 'single'
+              ? '选择一个 AI 同事，体验 1v1 对话'
+              : '选择多个 AI 同事，体验群聊效果'}
+            {' —— 由 Kimi 大模型驱动'}
           </motion.p>
+
+          {/* Mode Switch */}
+          <motion.div className="mode-switch" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+            <button className={`mode-btn ${mode === 'single' ? 'active' : ''}`} onClick={() => setMode('single')}>
+              <MessageSquare size={14} />
+              1v1 聊天
+            </button>
+            <button className={`mode-btn ${mode === 'group' ? 'active' : ''}`} onClick={() => setMode('group')}>
+              <Users size={14} />
+              群聊模式
+            </button>
+          </motion.div>
         </div>
       </section>
 
+      {/* Main */}
       <section className="chat-main section">
         <div className="container">
           <div className="chat-layout">
+            {/* Left: Role List */}
             <div className="chat-sidebar">
               <div className="sidebar-section">
-                <h3 className="section-title">
-                  <RefreshCw size={16} />
-                  会话管理
-                </h3>
-                <div className="session-list">
-                  {sessions.length > 0 ? (
-                    sessions.map(session => (
-                      <div key={session.id} className="session-item">
-                        <div 
-                          className={`session-name ${currentSessionId === session.id ? 'active' : ''}`}
-                          onClick={() => switchSession(session.id)}
-                        >
-                          {session.name}
-                        </div>
-                        <button 
-                          className="session-delete"
-                          onClick={() => deleteSession(session.id)}
-                          title="删除会话"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="session-empty">
-                      暂无会话
-                    </div>
+                <h3 className="sidebar-heading">
+                  {mode === 'group' ? '选择群成员' : '选择同事'}
+                  {mode === 'group' && selectedRoles.length > 0 && (
+                    <span className="role-count">{selectedRoles.length} 人</span>
                   )}
+                </h3>
+                <div className="role-list">
+                  {ROLES.map((role) => {
+                    const isSelected = mode === 'single'
+                      ? activeRole === role.id
+                      : selectedRoles.includes(role.id);
+
+                    return (
+                      <button
+                        key={role.id}
+                        className={`role-item ${isSelected ? 'active' : ''}`}
+                        onClick={() => mode === 'single' ? setActiveRole(role.id) : toggleRole(role.id)}
+                        style={{ '--role-color': role.color }}
+                      >
+                        <span className="role-emoji">{role.emoji}</span>
+                        <div className="role-info">
+                          <span className="role-name">{role.name}</span>
+                          <span className="role-desc">{role.desc}</span>
+                        </div>
+                        {mode === 'group' && (
+                          <span className={`role-check ${isSelected ? 'checked' : ''}`}>
+                            {isSelected ? '✓' : ''}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-                <button 
-                  className="create-session-button"
-                  onClick={createNewSession}
-                >
-                  + 新会话
+              </div>
+
+              {/* Settings */}
+              <div className="sidebar-section">
+                <button className="settings-toggle" onClick={() => setShowSettings(!showSettings)}>
+                  <Settings size={14} />
+                  <span>设置</span>
+                  <ChevronDown size={14} className={`chevron ${showSettings ? 'open' : ''}`} />
                 </button>
+                <AnimatePresence>
+                  {showSettings && (
+                    <motion.div className="settings-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                      <div className="setting-item">
+                        <label><Bot size={12} /> 模型</label>
+                        <select value={model} onChange={(e) => setModel(e.target.value)}>
+                          <option value="moonshot-v1-8k">moonshot-v1-8k（免费）</option>
+                          <option value="moonshot-v1-32k">moonshot-v1-32k</option>
+                          <option value="moonshot-v1-128k">moonshot-v1-128k</option>
+                        </select>
+                      </div>
+                      <p className="settings-hint">每个角色已配置独立 API Key</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-
-              <div className="sidebar-section">
-                <h3 className="section-title">
-                  <Users size={16} />
-                  {isGroupChat ? 'Agent 列表（群聊中）' : '选择 Agent（单聊）'}
-                </h3>
-                <div className="agent-list">
-                  {AGENTS.map(agent => (
-                    <AgentPill
-                      key={agent.id}
-                      agent={agent}
-                      isActive={isGroupChat || selectedAgent === agent.id}
-                      onClick={() => handleAgentSelect(agent.id)}
-                      unread={0}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="sidebar-section">
-                <h3 className="section-title">
-                  <Settings size={16} />
-                  AI 服务设置
-                </h3>
-                <div className="provider-selector">
-                  <button
-                    className={`provider-button ${selectedProvider === 'kimi' ? 'active' : ''}`}
-                    onClick={() => handleProviderChange('kimi')}
-                  >
-                    Kimi AI
-                  </button>
-                  <button
-                    className={`provider-button ${selectedProvider === 'minimax' ? 'active' : ''}`}
-                    onClick={() => handleProviderChange('minimax')}
-                  >
-                    Minimax
-                  </button>
-                  <button
-                    className={`provider-button ${selectedProvider === 'doubao' ? 'active' : ''}`}
-                    onClick={() => handleProviderChange('doubao')}
-                  >
-                    豆包 AI
-                  </button>
-                </div>
-                {apiError && (
-                  <div className="error-message">
-                    <X size={16} />
-                    {apiError}
-                  </div>
-                )}
-              </div>
-
-              <div className="sidebar-section">
-                <h3 className="section-title">
-                  <Sparkles size={16} />
-                  使用说明
-                </h3>
-                <div className="usage-tips">
-                  <p>🤖 <strong>群聊模式</strong>：所有 Agent 都会回复你的消息</p>
-                  <p>👤 <strong>单聊模式</strong>：点击某个 Agent 只与它对话</p>
-                  <p>💬 尝试问他们问题、讨论职场话题或让他们自我介绍</p>
-                  <p>🔧 可以在左侧切换不同的 AI 服务提供商</p>
-                </div>
-              </div>
-
-              <motion.button
-                className="mode-toggle"
-                onClick={() => {
-                  setIsGroupChat(!isGroupChat);
-                  if (!isGroupChat) setSelectedAgent(null);
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Zap size={16} />
-                {isGroupChat ? '切换到单聊模式' : '切换到群聊模式'}
-              </motion.button>
             </div>
 
+            {/* Center: Chat Area */}
             <div className="chat-area">
+              {/* Chat Header */}
+              <div className="chat-area-header" style={{ '--role-color': mode === 'single' ? currentRole.color : '#6C5CE7' }}>
+                <div className="chat-area-role">
+                  <span className="chat-area-emoji">{mode === 'group' ? '💬' : currentRole.emoji}</span>
+                  <div>
+                    <h3>{mode === 'group' ? `群聊 (${selectedRoles.length} 人)` : currentRole.name}</h3>
+                    <p>{mode === 'group' ? selectedRoles.map(id => ROLES.find(r => r.id === id)?.name).join('、') : currentRole.desc}</p>
+                  </div>
+                </div>
+                <div className="chat-area-actions">
+                  {mode === 'group' && (
+                    <label className="smart-routing-toggle" title={smartRouting ? '智能路由：主持人决定谁回复' : '手动模式：所有勾选角色都回复'}>
+                      <span className="routing-label">智能路由</span>
+                      <div className={`routing-switch ${smartRouting ? 'on' : ''}`} onClick={() => setSmartRouting(!smartRouting)}>
+                        <div className="routing-knob" />
+                      </div>
+                    </label>
+                  )}
+                  <button className="btn-clear" onClick={handleClear} title="清空对话">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Messages */}
               <div className="messages-container">
+                {displayMessages.length === 0 && (
+                  <div className="empty-chat">
+                    <Sparkles size={40} className="empty-icon" />
+                    <h3>{mode === 'group' ? '开始群聊' : `开始和 ${currentRole.name} 聊天`}</h3>
+                    <p>{mode === 'group' ? '勾选左侧的同事，发一条消息试试' : '试试问一些职场话题，比如：'}</p>
+                    {mode === 'single' && (
+                      <div className="suggestion-chips">
+                        {getSuggestions(activeRole).map((s, i) => (
+                          <button key={i} className="suggestion-chip" onClick={() => { setInput(s); inputRef.current?.focus(); }}>
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {mode === 'group' && (
+                      <div className="suggestion-chips">
+                        {['这个需求怎么排期？', '线上出 Bug 了怎么办？', '新功能的设计稿出了', '技术选型讨论一下'].map((s, i) => (
+                          <button key={i} className="suggestion-chip" onClick={() => { setInput(s); inputRef.current?.focus(); }}>
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <AnimatePresence>
-                  {messages.map(message => {
-                    const agent = AGENTS.find(a => a.id === message.sender);
+                  {displayMessages.map((msg) => {
+                    const isUser = msg.role === 'user';
+                    const isCurrentlyStreaming = streamingRole === msg.role && !msg.content;
+
                     return (
-                      <Message
-                        key={message.id}
-                        message={message}
-                        agent={agent}
-                      />
+                      <motion.div
+                        key={msg.id}
+                        className={`message ${isUser ? 'user' : 'assistant'} ${mode === 'group' ? 'group' : ''}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {!isUser && (
+                          <div className="message-avatar" style={{ background: msg.color || '#6C5CE7' }}>
+                            {msg.emoji || '🤖'}
+                          </div>
+                        )}
+                        <div className="message-bubble">
+                          {mode === 'group' && !isUser && (
+                            <span className="message-name" style={{ color: msg.color }}>{msg.name}</span>
+                          )}
+                          <p>{msg.content}</p>
+                          {isCurrentlyStreaming && (
+                            <span className="typing-indicator"><span /><span /><span /></span>
+                          )}
+                        </div>
+                        {isUser && (
+                          <div className="message-avatar user-avatar"><User size={16} /></div>
+                        )}
+                      </motion.div>
                     );
                   })}
                 </AnimatePresence>
-                {isAgentTyping && currentAgent && (
-                  <motion.div
-                    className="message agent-message typing"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ '--agent-color': currentAgent.color }}
-                  >
-                    <div className="message-avatar" style={{ backgroundColor: currentAgent.color }}>
-                      {currentAgent.avatar}
-                    </div>
-                    <div className="message-content">
-                      <div className="message-header">
-                        <span className="message-sender">{currentAgent.name}</span>
-                        <span className="message-role">{currentAgent.role}</span>
-                      </div>
-                      <div className="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    </div>
+
+                {error && (
+                  <motion.div className="error-message" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <AlertCircle size={14} />
+                    <span>{error}</span>
                   </motion.div>
                 )}
+
+                {routingInfo && (
+                  <motion.div className="routing-info" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    {routingInfo}
+                  </motion.div>
+                )}
+
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Input */}
               <div className="chat-input-area">
-                <input
-                  type="text"
-                  className="chat-input"
-                  placeholder={isGroupChat ? "输入话题，让 Agent 们一起讨论..." : "和 Agent 单独对话..."}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  disabled={isGenerating}
-                />
-                {isGenerating ? (
+                <div className="input-wrapper">
+                  <textarea
+                    ref={inputRef}
+                    className="chat-input"
+                    placeholder={mode === 'group'
+                      ? (selectedRoles.length === 0 ? '请先勾选群成员' : '发一条消息给所有同事...')
+                      : `和 ${currentRole.name} 聊点什么...`}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isStreaming || (mode === 'group' && selectedRoles.length === 0)}
+                    rows={1}
+                  />
                   <motion.button
-                    className="cancel-button"
-                    onClick={handleCancelGeneration}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <X size={20} />
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    className="send-button"
+                    className="btn-send"
                     onClick={handleSend}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() || isStreaming || (mode === 'group' && selectedRoles.length === 0)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Send size={20} />
+                    {isStreaming ? <Loader2 size={18} className="spinning" /> : <Send size={18} />}
                   </motion.button>
-                )}
+                </div>
+                <p className="input-hint">
+                  按 Enter 发送，Shift+Enter 换行 · {mode === 'group' ? 'AI 同事会依次回复' : '对话保存在本地'}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
-    </motion.div>
+    </div>
   );
+}
+
+/* ===== 建议问题 ===== */
+function getSuggestions(roleId) {
+  const suggestions = {
+    pm: ['这个需求排期怎么排？', '用户反馈说这个功能不好用', '竞品出了新功能我们跟不跟？', '帮我写个 PRD'],
+    designer: ['这个页面的配色怎么样？', '开发又没按设计稿来', '有什么好的设计灵感网站？', '暗色主题怎么做更好看？'],
+    dev: ['这个 Bug 怎么修？', '需求又改了，心态崩了', '有什么好的技术博客推荐？', '微服务和单体怎么选？'],
+    qa: ['这个功能的边界情况有哪些？', '线上又出 Bug 了！', '自动化测试怎么搞？', '这个需求测试要点是什么？'],
+  };
+  return suggestions[roleId] || [];
 }
