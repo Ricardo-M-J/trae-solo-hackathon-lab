@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
 import Basics from './pages/Basics/Basics';
@@ -8,6 +9,21 @@ import Lottery from './pages/Lottery/Lottery';
 import Chat from './pages/Chat/Chat';
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 检查是否有保存的原始路径
+    const redirect = sessionStorage.redirect;
+    if (redirect) {
+      sessionStorage.removeItem('redirect');
+      // 提取路径部分（去掉 base）
+      const path = redirect.replace('/trae-lottery-demo', '');
+      if (path && path !== '/') {
+        navigate(path, { replace: true });
+      }
+    }
+  }, [navigate]);
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

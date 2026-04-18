@@ -4,19 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAE SOLO 路演抽奖系统</title>
-    <script type="text/javascript">
-      (function() {
-        var redirect = sessionStorage.redirect;
-        sessionStorage.removeItem('redirect');
-        if (redirect && redirect !== location.pathname) {
-          history.replaceState(null, '', redirect);
-        } else {
-          location.replace('/trae-lottery-demo/');
-        }
-      })();
-    </script>
   </head>
   <body>
+    <script type="text/javascript">
+      var path = location.pathname;
+      // 保存原始路径到 sessionStorage
+      sessionStorage.redirect = path;
+      // 跳转到首页
+      location.replace('/trae-lottery-demo/');
+    </script>
     <noscript>
       <meta http-equiv="refresh" content="0;url=/trae-lottery-demo/" />
     </noscript>
