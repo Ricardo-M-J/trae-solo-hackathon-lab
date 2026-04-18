@@ -14,7 +14,7 @@ const ROLES = [
     emoji: '🎯',
     color: '#6C5CE7',
     desc: '需求分析、用户故事、排期催促',
-    apiKey: 'sk-YLuIge7lmWtuavjgE27IVGLyjiccaTw2nYNE906BaxW9O8YO',
+    apiKey: import.meta.env.VITE_PM_API_KEY || 'sk-YLuIge7lmWtuavjgE27IVGLyjiccaTw2nYNE906BaxW9O8YO',
     systemPrompt: '你是字节跳动的一名产品经理"小王"。说话风格：喜欢用"对齐"、"赋能"、"抓手"、"闭环"等互联网黑话，但也会偶尔吐槽加班。回复要简短自然，像微信群聊一样，不要写长文。每次回复控制在50字以内。',
   },
   {
@@ -23,7 +23,7 @@ const ROLES = [
     emoji: '🎨',
     color: '#FD79A8',
     desc: 'UI/UX、设计规范、配色方案',
-    apiKey: 'sk-9kIx0uxAdmAnuA2pqrsHuNWgTdqKvECw3imxjaCfnMFAfHgw',
+    apiKey: import.meta.env.VITE_DESIGNER_API_KEY || 'sk-9kIx0uxAdmAnuA2pqrsHuNWgTdqKvECw3imxjaCfnMFAfHgw',
     systemPrompt: '你是字节跳动的一名 UI 设计师"小李"。说话风格：温和但坚持设计原则，会吐槽开发不按设计稿来。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
   },
   {
@@ -32,7 +32,7 @@ const ROLES = [
     emoji: '💻',
     color: '#00CEC9',
     desc: '技术方案、代码问题、偶尔摸鱼',
-    apiKey: 'sk-0pmKwEVTNk3eKfpSCNAN6eW5c6dv1fYGe4Rotyu1XUsD5WJB',
+    apiKey: import.meta.env.VITE_DEV_API_KEY || 'sk-0pmKwEVTNk3eKfpSCNAN6eW5c6dv1fYGe4Rotyu1XUsD5WJB',
     systemPrompt: '你是字节跳动的一名后端程序员"小张"。说话风格：直接、偶尔用技术梗，会吐槽产品经理改需求。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
   },
   {
@@ -41,7 +41,7 @@ const ROLES = [
     emoji: '🧪',
     color: '#FDCB6E',
     desc: 'Bug 报告、质量把控、边界情况',
-    apiKey: 'sk-F8qyjXL1NHG2JLb8Ql7YXoAbmA416DOHht9GSPVf1PnQtpoh',
+    apiKey: import.meta.env.VITE_QA_API_KEY || 'sk-F8qyjXL1NHG2JLb8Ql7YXoAbmA416DOHht9GSPVf1PnQtpoh',
     systemPrompt: '你是字节跳动的一名测试工程师"小陈"。说话风格：认真负责，会列举各种边界情况，偶尔吐槽开发写的代码质量。回复要简短自然，像微信群聊一样。每次回复控制在50字以内。',
   },
 ];
@@ -51,7 +51,7 @@ const DEFAULT_MODEL = 'moonshot-v1-8k';
 const MAX_CONTEXT_MESSAGES = 15;
 
 /* ===== 会议室主持人（智能路由）===== */
-const MODERATOR_KEY = 'sk-mZ9AZD1Xb6RHYilRtu1IoMcsN8pGaNIrhzB7KaNevAkrHOfY';
+const MODERATOR_KEY = import.meta.env.VITE_KIMI_API_KEY || 'sk-mZ9AZD1Xb6RHYilRtu1IoMcsN8pGaNIrhzB7KaNevAkrHOfY';
 const MODERATOR_PROMPT = `你是一个职场群聊的主持人。当用户发送一条消息时，你需要判断哪些同事应该回复。
 
 可选的同事及 ID：
