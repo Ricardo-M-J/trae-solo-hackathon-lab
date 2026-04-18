@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Sparkles, Code2, Trophy, Menu, X, GraduationCap, Rocket } from 'lucide-react';
+import { Home, Sparkles, Code2, Trophy, Menu, X, GraduationCap, Rocket, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import './Layout.css';
 
@@ -10,6 +10,7 @@ const navItems = [
   { path: '/advanced', label: '进阶功能', icon: GraduationCap },
   { path: '/demo', label: '演示', icon: Code2 },
   { path: '/lottery', label: '抽奖', icon: Trophy },
+  { path: '/chat', label: 'AI聊天', icon: MessageCircle },
 ];
 
 export default function Layout() {
