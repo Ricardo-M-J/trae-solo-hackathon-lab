@@ -31,6 +31,13 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_BASE_PATH: /trae-lottery-demo
+          VITE_KIMI_API_KEY: ${{ secrets.VITE_KIMI_API_KEY }}
+          VITE_PM_API_KEY: ${{ secrets.VITE_PM_API_KEY }}
+          VITE_DESIGNER_API_KEY: ${{ secrets.VITE_DESIGNER_API_KEY }}
+          VITE_DEV_API_KEY: ${{ secrets.VITE_DEV_API_KEY }}
+          VITE_QA_API_KEY: ${{ secrets.VITE_QA_API_KEY }}
         run: npm run build
 
       - name: Setup Pages
