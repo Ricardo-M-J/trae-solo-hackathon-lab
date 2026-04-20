@@ -1,20 +1,18 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TRAE SOLO 路演抽奖系统</title>
+    <title>trae-solo-showcase</title>
   </head>
   <body>
-    <script type="text/javascript">
-      var path = location.pathname;
-      // 保存原始路径到 sessionStorage
-      sessionStorage.redirect = path;
-      // 跳转到首页
-      location.replace('/trae-lottery-demo/');
+    <div id="root"></div>
+    <script>
+      // 保存原始路径
+      sessionStorage.redirect = location.pathname;
+      // 重定向到首页
+      location.href = '/';
     </script>
-    <noscript>
-      <meta http-equiv="refresh" content="0;url=/trae-lottery-demo/" />
-    </noscript>
   </body>
 </html>
