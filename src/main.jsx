@@ -6,7 +6,7 @@ import './styles/globals.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename="/trae-lottery-demo">
+    <BrowserRouter basename={import.meta.env.VITE_BASE_PATH || "/"}>
       <App />
     </BrowserRouter>
   </StrictMode>

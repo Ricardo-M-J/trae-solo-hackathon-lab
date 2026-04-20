@@ -17,7 +17,8 @@ function App() {
     if (redirect) {
       sessionStorage.removeItem('redirect');
       // 提取路径部分（去掉 base）
-      const path = redirect.replace('/trae-lottery-demo', '');
+      const basePath = import.meta.env.VITE_BASE_PATH || '/';
+      const path = redirect.replace(basePath, '');
       if (path && path !== '/') {
         navigate(path, { replace: true });
       }
