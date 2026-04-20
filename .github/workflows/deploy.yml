@@ -33,6 +33,7 @@ jobs:
       - name: Build
         env:
           VITE_BASE_PATH: /trae-lottery-demo
+          VITE_API_PROXY_URL: ${{ secrets.VITE_API_PROXY_URL }}
           VITE_KIMI_API_KEY: ${{ secrets.VITE_KIMI_API_KEY }}
           VITE_PM_API_KEY: ${{ secrets.VITE_PM_API_KEY }}
           VITE_DESIGNER_API_KEY: ${{ secrets.VITE_DESIGNER_API_KEY }}
