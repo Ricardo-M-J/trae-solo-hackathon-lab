@@ -11,8 +11,16 @@
     <script>
       // 保存原始路径
       sessionStorage.redirect = location.pathname;
-      // 重定向到首页
-      location.href = '/';
+      
+      // 检测是否在GitHub Pages环境
+      const isGitHubPages = location.hostname === 'ricardo-m-j.github.io';
+      
+      // 重定向到正确的首页
+      if (isGitHubPages) {
+        location.href = '/trae-lottery-demo/';
+      } else {
+        location.href = '/';
+      }
     </script>
   </body>
 </html>
