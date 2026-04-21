@@ -29,6 +29,24 @@
             margin-top: 20px;
         }
 
+        .back-link {
+            margin-bottom: 20px;
+        }
+
+        .back-link a {
+            color: #4285f4;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -212,14 +230,18 @@
 </head>
 <body>
     <div class="container">
+        <div class="back-link">
+            <a href="https://github.com/Ricardo-M-J/trae-solo-hackathon-lab" target="_blank">← Back to GitHub Repository</a>
+        </div>
+
         <div class="header">
             <h1>Trae Solo Hackathon Lab</h1>
-            <p class="subtitle">武汉黑客松项目 · 抽奖系统与Multi-Agent会议室</p>
+            <p class="subtitle">武汉黑客松项目 · Trae Friends Hackathon Project</p>
         </div>
 
         <div class="language-switcher">
-            <button class="language-btn active" data-lang="zh">🇨🇳 中文</button>
             <button class="language-btn" data-lang="en">🇺🇸 English</button>
+            <button class="language-btn" data-lang="zh">🇨🇳 中文</button>
         </div>
 
         <!-- 中文内容 -->
@@ -435,10 +457,10 @@ VITE_QA_API_KEY=Tester role API key
 
             // 从URL锚点或localStorage获取语言偏好
             const hash = window.location.hash;
-            let initialLang = 'zh'; // 默认中文
+            let initialLang = 'en'; // 默认英文
 
-            if (hash === '#en') {
-                initialLang = 'en';
+            if (hash === '#cn') {
+                initialLang = 'zh';
             } else {
                 const savedLanguage = localStorage.getItem('preferred-language');
                 if (savedLanguage) {
