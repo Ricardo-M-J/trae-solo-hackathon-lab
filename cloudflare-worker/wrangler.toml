@@ -1,0 +1,19 @@
+name = "trae-solo-api-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# 这些值会在 Cloudflare Dashboard 中设置
+# KIMI_API_KEY = "your-kimi-api-key"
+
+# 路由配置
+routes = [
+  { pattern = "api.trae-solo-hackathon-lab.pages.dev", zone_name = "trae-solo-hackathon-lab.pages.dev" }
+]
+
+# 生产环境
+[env.production]
+name = "trae-solo-api-proxy"
+routes = [
+  { pattern = "api.trae-solo-hackathon-lab.pages.dev", zone_name = "trae-solo-hackathon-lab.pages.dev" }
+]

@@ -15,19 +15,15 @@ class AIService {
     return {
       name: 'kimi',
       generate: async (messages, agent) => {
-        const apiKey = import.meta.env.VITE_KIMI_API_KEY;
-        if (!apiKey) {
-          throw new Error('Kimi API key not configured');
-        }
-
+        // 使用Cloudflare Worker代理API地址，保护API密钥
+        const apiProxyUrl = import.meta.env.VITE_API_PROXY_URL || 'https://api.trae-solo-hackathon-lab.pages.dev/api/chat';
         const systemPrompt = this.getAgentPrompt(agent);
 
         try {
-          const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+          const response = await fetch(apiProxyUrl, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
               model: 'moonshot-v1-8k',  // 使用基础模型

@@ -38,7 +38,7 @@
 - Support for GitHub Pages and Cloudflare Pages deployment
 
 ## 部署链接
-- **GitHub Pages**：[https://ricardo-m-j.github.io/trae-lottery-demo/](https://ricardo-m-j.github.io/trae-lottery-demo/)
+- **GitHub Pages**：[https://ricardo-m-j.github.io/trae-solo-hackathon-lab/](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/)
 - **Cloudflare Pages**：[https://trae-lottery-demo-v2.pages.dev/](https://trae-lottery-demo-v2.pages.dev/)
 
 ## 本地开发
