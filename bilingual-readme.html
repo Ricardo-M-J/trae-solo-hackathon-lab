@@ -432,23 +432,36 @@ VITE_QA_API_KEY=Tester role API key
             const languageButtons = document.querySelectorAll('.language-btn');
             const contentZh = document.getElementById('content-zh');
             const contentEn = document.getElementById('content-en');
-            
-            // 从localStorage获取保存的语言偏好
-            const savedLanguage = localStorage.getItem('preferred-language') || 'zh';
-            
+
+            // 从URL锚点或localStorage获取语言偏好
+            const hash = window.location.hash;
+            let initialLang = 'zh'; // 默认中文
+
+            if (hash === '#en') {
+                initialLang = 'en';
+            } else {
+                const savedLanguage = localStorage.getItem('preferred-language');
+                if (savedLanguage) {
+                    initialLang = savedLanguage;
+                }
+            }
+
             // 初始化语言
-            setLanguage(savedLanguage);
-            
+            setLanguage(initialLang);
+
             languageButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
                     setLanguage(lang);
-                    
+
                     // 保存偏好到localStorage
                     localStorage.setItem('preferred-language', lang);
+
+                    // 更新URL锚点
+                    window.location.hash = lang;
                 });
             });
-            
+
             function setLanguage(lang) {
                 // 更新按钮状态
                 languageButtons.forEach(btn => {
@@ -458,7 +471,7 @@ VITE_QA_API_KEY=Tester role API key
                         btn.classList.remove('active');
                     }
                 });
-                
+
                 // 显示对应内容
                 if (lang === 'zh') {
                     contentZh.classList.add('active');

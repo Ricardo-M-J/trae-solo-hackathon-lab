@@ -1,88 +1,139 @@
-# Trae Friends 武汉站黑客松项目
+# Trae Solo Hackathon Lab
 
-> 🌐 **双语页面**：本项目提供[中英双语介绍页面](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/bilingual-readme.html)，支持一键切换语言，提供更好的国际化体验。
+> 🌐 **Bilingual**: This project offers a [Chinese version](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/bilingual-readme.html#cn) of the introduction.
 
-## 项目名称
+## Project Name
+**English**: Solo Teaches You Solo — A Multi-Agent Architecture Meeting Room Example
 **中文**：solo教你用solo——以multiagent架构的会议室为例
-**English**：Solo Teaches You Solo — A Multi-Agent Architecture Meeting Room Example
 
-## 项目简介
-**中文**：这是一个 Trae Friends 武汉站黑客松项目，旨在通过实际案例展示如何使用 Trae Solo 构建完整的 web 应用。项目包含两个主要功能：
-- 路演抽奖系统：用于活动现场抽奖
-- AI 会议室：基于 Multi-Agent 架构的智能聊天系统，包含产品经理、设计师、程序员、测试四个角色
+## Project Introduction
+This is a **Trae Friends Wuhan Hackathon** project designed to demonstrate how to build a complete web application using Trae Solo through practical examples. The project showcases the power of AI-assisted development by building two functional systems:
 
-**English**：This is a Trae Friends Wuhan hackathon project designed to demonstrate how to build a complete web application using Trae Solo through practical examples. The project includes two main features:
-- Roadshow Lottery System: For on-site event lottery
-- AI Meeting Room: Intelligent chat system based on Multi-Agent architecture, including four roles: Product Manager, Designer, Developer, and Tester
+- **Roadshow Lottery System**: An interactive lottery system for event presentations
+- **AI Meeting Room**: An intelligent chat system featuring four AI agents with different roles
 
-## 技术栈
+## Technology Stack
 - React + Vite
 - React Router
-- Framer Motion (动画效果)
-- Lucide React (图标)
-- Kimi API (AI 聊天)
+- Framer Motion (animations)
+- Lucide React (icons)
+- Kimi API (AI chat)
 
-## 项目特点
-**中文**：
-- 响应式设计，适配不同设备
-- 智能路由：AI 主持人自动判断消息应该由哪些角色回复
-- 流式 API 响应，实时显示聊天内容
-- 本地存储聊天历史
-- 支持 GitHub Pages 和 Cloudflare Pages 部署
+## Key Features
+- ✅ Responsive design, adapting to different devices
+- ✅ Smart routing: AI moderator automatically determines which agents should respond
+- ✅ Streaming API responses with real-time chat display
+- ✅ Local storage for chat history persistence
+- ✅ Support for GitHub Pages and Cloudflare Pages deployment
+- ✅ Multi-agent architecture with role-specific AI behaviors
 
-**English**：
-- Responsive design, adapting to different devices
-- Smart routing: AI moderator automatically determines which roles should respond to messages
-- Streaming API responses, real-time chat display
-- Local storage for chat history
-- Support for GitHub Pages and Cloudflare Pages deployment
+## Deployment Links
+- **GitHub Pages**: [https://ricardo-m-j.github.io/trae-solo-hackathon-lab/](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/)
+- **Cloudflare Pages**: [https://trae-lottery-demo-v2.pages.dev/](https://trae-lottery-demo-v2.pages.dev/)
 
-## 部署链接
-- **GitHub Pages**：[https://ricardo-m-j.github.io/trae-solo-hackathon-lab/](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/)
-- **Cloudflare Pages**：[https://trae-lottery-demo-v2.pages.dev/](https://trae-lottery-demo-v2.pages.dev/)
+## Local Development
+```bash
+git clone https://github.com/Ricardo-M-J/trae-solo-hackathon-lab.git
+cd trae-solo-hackathon-lab
+npm install
+npm run dev
+npm run build  # Production build
+```
 
-## 本地开发
-1. 克隆项目
-2. 安装依赖：`npm install`
-3. 启动开发服务器：`npm run dev`
-4. 构建生产版本：`npm run build`
+## Project Structure
+```
+src/
+├── pages/
+│   ├── Home/         # Home page
+│   ├── Chat/          # AI Meeting Room
+│   ├── Lottery/       # Lottery system
+│   ├── Basics/        # Basic features
+│   ├── Advanced/       # Advanced features
+│   └── Demo/          # Demo page
+├── components/         # Common components
+├── styles/            # Global styles
+└── services/         # API services
 
-## 项目结构
-- `src/`：源代码
-  - `pages/`：页面组件
-    - `Home/`：首页
-    - `Chat/`：AI 聊天页面
-    - `Lottery/`：抽奖页面
-  - `components/`：通用组件
-  - `styles/`：样式文件
-  - `services/`：服务（如 AI API 调用）
-- `public/`：静态资源
-  - `_redirects`：Cloudflare Pages 路由配置
-  - `404.html`：SPA 路由 fallback
+public/
+├── _redirects        # Cloudflare Pages routing
+├── 404.html          # SPA routing fallback
+└── favicon.svg       # Site favicon
+```
 
-## 核心功能
-### 1. 路演抽奖系统
-- 支持手动输入抽奖人数
-- 随机抽取获奖者
-- 动画效果展示
+## Core Features
 
-### 2. AI 会议室
-- 四个 AI 角色：产品经理、设计师、程序员、测试
-- 智能路由：主持人 AI 自动判断消息应该由哪些角色回复
-- 支持 1v1 聊天和群聊模式
-- 流式 API 响应，实时显示聊天内容
+### 1. Roadshow Lottery System
+- Manual input for number of participants
+- Random winner selection with animations
+- Visual celebration effects
+- Adjustable prize tiers
 
-## 环境变量
-项目使用以下环境变量：
-- `VITE_BASE_PATH`：部署基础路径
-- `VITE_KIMI_API_KEY`：Kimi API 密钥
-- `VITE_PM_API_KEY`：产品经理角色 API 密钥
-- `VITE_DESIGNER_API_KEY`：设计师角色 API 密钥
-- `VITE_DEV_API_KEY`：程序员角色 API 密钥
-- `VITE_QA_API_KEY`：测试角色 API 密钥
+### 2. AI Meeting Room
+- **Four AI Roles**:
+  - 🎯 Product Manager (产品经理小王)
+  - 🎨 Designer (设计师小李)
+  - 💻 Developer (程序员小张)
+  - 🧪 Tester (测试小刘)
 
-## 许可
+- **Smart Routing**: AI moderator analyzes messages and determines which agents should respond
+- **Chat Modes**: Support for 1v1 private chat and group chat
+- **Streaming Responses**: Real-time AI reply display
+- **Persistent History**: Local storage maintains conversation history
+
+### 3. Multi-Agent Architecture
+The AI Meeting Room implements a sophisticated multi-agent system where:
+- Each agent has a distinct personality and expertise
+- A moderator agent analyzes incoming messages
+- Agents can collaborate in group discussions
+- Responses are contextually appropriate to each role
+
+## Environment Variables
+The project uses the following environment variables:
+
+```env
+VITE_BASE_PATH=/trae-solo-hackathon-lab
+VITE_API_PROXY_URL=https://trae-solo-api-proxy.1463940581.workers.dev/api/chat
+VITE_KIMI_API_KEY=your_kimi_api_key
+VITE_PM_API_KEY=product_manager_api_key
+VITE_DESIGNER_API_KEY=designer_api_key
+VITE_DEV_API_KEY=developer_api_key
+VITE_QA_API_KEY=tester_api_key
+```
+
+> ⚠️ **Security Note**: API keys are protected through Cloudflare Worker proxy and are never exposed in the frontend code.
+
+## Architecture
+
+### Frontend
+```
+User Browser → React App → Cloudflare Worker Proxy → Kimi API
+```
+
+### Cloudflare Worker Proxy
+The Worker acts as a secure API gateway:
+- Receives requests from the frontend
+- Adds API credentials securely
+- Forwards requests to Kimi API
+- Returns responses to frontend
+
+This architecture ensures API keys remain secure on the server side.
+
+## Learning Journey
+
+This project was created using **Trae Solo** as a learning tool:
+1. Started with basic concepts
+2. Built features incrementally
+3. Integrated AI APIs
+4. Implemented multi-agent architecture
+5. Deployed to production
+
+## License
 MIT License
 
-## 联系方式
-如有问题，欢迎联系项目团队。
+## Contact
+For questions or collaboration opportunities, feel free to reach out!
+
+---
+
+## 中文版本
+[点击这里查看中文介绍](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/bilingual-readme.html#cn)
