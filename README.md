@@ -1,5 +1,7 @@
 # Trae Friends 武汉站黑客松项目
 
+> 🌐 **双语页面**：本项目提供[中英双语介绍页面](https://ricardo-m-j.github.io/trae-solo-hackathon-lab/bilingual-readme.html)，支持一键切换语言，提供更好的国际化体验。
+
 ## 项目名称
 **中文**：solo教你用solo——以multiagent架构的会议室为例
 **English**：Solo Teaches You Solo — A Multi-Agent Architecture Meeting Room Example

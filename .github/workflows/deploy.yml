@@ -41,6 +41,9 @@ jobs:
           VITE_QA_API_KEY: ${{ secrets.VITE_QA_API_KEY }}
         run: npm run build
 
+      - name: Copy bilingual HTML to dist
+        run: cp bilingual-readme.html dist/
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
