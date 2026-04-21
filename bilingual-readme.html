@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trae Solo Hackathon Lab - 中英双语介绍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            background-color: #f6f8fa;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            margin-top: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eaecef;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* 语言切换器样式 */
+        .language-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .language-btn {
+            padding: 10px 25px;
+            border: 2px solid #4285f4;
+            background: white;
+            color: #4285f4;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn:hover {
+            background: #f0f7ff;
+            transform: translateY(-2px);
+        }
+
+        .language-btn.active {
+            background: #4285f4;
+            color: white;
+        }
+
+        /* 内容区域样式 */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Markdown样式 */
+        h2 {
+            color: #2c3e50;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eaecef;
+        }
+
+        h3 {
+            color: #34495e;
+            margin: 25px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .link-btn {
+            display: inline-block;
+            background: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: background 0.3s ease;
+        }
+
+        .link-btn:hover {
+            background: #3367d6;
+            text-decoration: none;
+        }
+
+        .link-btn.secondary {
+            background: #6c757d;
+        }
+
+        .link-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .note {
+            background-color: #e7f3ff;
+            border-left: 4px solid #4285f4;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eaecef;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .language-switcher {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .language-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trae Solo Hackathon Lab</h1>
+            <p class="subtitle">武汉黑客松项目 · 抽奖系统与Multi-Agent会议室</p>
+        </div>
+
+        <div class="language-switcher">
+            <button class="language-btn active" data-lang="zh">中文 简体</button>
+            <button class="language-btn" data-lang="en">English</button>
+        </div>
+
+        <!-- 中文内容 -->
+        <div id="content-zh" class="content-section active">
+            <h2>项目名称</h2>
+            <p><strong>中文</strong>：solo教你用solo——以multiagent架构的会议室为例</p>
+            <p><strong>English</strong>：Solo Teaches You Solo — A Multi-Agent Architecture Meeting Room Example</p>
+
+            <h2>项目简介</h2>
+            <p>这是一个 Trae Friends 武汉站黑客松项目，旨在通过实际案例展示如何使用 Trae Solo 构建完整的 web 应用。项目包含两个主要功能：</p>
+            <ul>
+                <li><strong>路演抽奖系统</strong>：用于活动现场抽奖</li>
+                <li><strong>AI 会议室</strong>：基于 Multi-Agent 架构的智能聊天系统，包含产品经理、设计师、程序员、测试四个角色</li>
+            </ul>
+
+            <h2>技术栈</h2>
+            <ul>
+                <li>React + Vite</li>
+                <li>React Router</li>
+                <li>Framer Motion (动画效果)</li>
+                <li>Lucide React (图标)</li>
+                <li>Kimi API (AI 聊天)</li>
+            </ul>
+
+            <h2>项目特点</h2>
+            <ul>
+                <li>响应式设计，适配不同设备</li>
+                <li>智能路由：AI 主持人自动判断消息应该由哪些角色回复</li>
+                <li>流式 API 响应，实时显示聊天内容</li>
+                <li>本地存储聊天历史</li>
+                <li>支持 GitHub Pages 和 Cloudflare Pages 部署</li>
+            </ul>
+
+            <h2>部署链接</h2>
+            <p>
+                <a href="https://ricardo-m-j.github.io/trae-lottery-demo/" class="link-btn" target="_blank">GitHub Pages</a>
+                <a href="https://trae-lottery-demo-v2.pages.dev/" class="link-btn secondary" target="_blank">Cloudflare Pages</a>
+            </p>
+
+            <h2>本地开发</h2>
+            <div class="code-block">
+git clone https://github.com/Ricardo-M-J/trae-solo-hackathon-lab.git<br>
+cd trae-solo-hackathon-lab<br>
+npm install<br>
+npm run dev
+            </div>
+
+            <h2>项目结构</h2>
+            <ul>
+                <li><code>src/</code>：源代码
+                    <ul>
+                        <li><code>pages/</code>：页面组件
+                            <ul>
+                                <li><code>Home/</code>：首页</li>
+                                <li><code>Chat/</code>：AI 聊天页面</li>
+                                <li><code>Lottery/</code>：抽奖页面</li>
+                            </ul>
+                        </li>
+                        <li><code>components/</code>：通用组件</li>
+                        <li><code>styles/</code>：样式文件</li>
+                        <li><code>services/</code>：服务（如 AI API 调用）</li>
+                    </ul>
+                </li>
+                <li><code>public/</code>：静态资源</li>
+            </ul>
+
+            <h2>核心功能</h2>
+            <h3>1. 路演抽奖系统</h3>
+            <ul>
+                <li>支持手动输入抽奖人数</li>
+                <li>随机抽取获奖者</li>
+                <li>动画效果展示</li>
+            </ul>
+
+            <h3>2. AI 会议室</h3>
+            <ul>
+                <li>四个 AI 角色：产品经理、设计师、程序员、测试</li>
+                <li>智能路由：主持人 AI 自动判断消息应该由哪些角色回复</li>
+                <li>支持 1v1 聊天和群聊模式</li>
+                <li>流式 API 响应，实时显示聊天内容</li>
+            </ul>
+
+            <h2>环境变量</h2>
+            <p>项目使用以下环境变量：</p>
+            <div class="code-block">
+VITE_BASE_PATH=/trae-lottery-demo<br>
+VITE_KIMI_API_KEY=你的 Kimi API 密钥<br>
+VITE_PM_API_KEY=产品经理角色 API 密钥<br>
+VITE_DESIGNER_API_KEY=设计师角色 API 密钥<br>
+VITE_DEV_API_KEY=程序员角色 API 密钥<br>
+VITE_QA_API_KEY=测试角色 API 密钥
+            </div>
+
+            <h2>许可</h2>
+            <p>MIT License</p>
+
+            <div class="note">
+                <p>这个项目展示了如何使用 Trae Solo 作为学习工具，通过边学边做的方式完成一个完整的黑客松项目，包含两个实用的系统。</p>
+            </div>
+        </div>
+
+        <!-- 英文内容 -->
+        <div id="content-en" class="content-section">
+            <h2>Project Name</h2>
+            <p><strong>Chinese</strong>：solo教你用solo——以multiagent架构的会议室为例</p>
+            <p><strong>English</strong>：Solo Teaches You Solo — A Multi-Agent Architecture Meeting Room Example</p>
+
+            <h2>Project Introduction</h2>
+            <p>This is a Trae Friends Wuhan hackathon project designed to demonstrate how to build a complete web application using Trae Solo through practical examples. The project includes two main features:</p>
+            <ul>
+                <li><strong>Roadshow Lottery System</strong>: For on-site event lottery</li>
+                <li><strong>AI Meeting Room</strong>: Intelligent chat system based on Multi-Agent architecture, including four roles: Product Manager, Designer, Developer, and Tester</li>
+            </ul>
+
+            <h2>Technology Stack</h2>
+            <ul>
+                <li>React + Vite</li>
+                <li>React Router</li>
+                <li>Framer Motion (animations)</li>
+                <li>Lucide React (icons)</li>
+                <li>Kimi API (AI chat)</li>
+            </ul>
+
+            <h2>Project Features</h2>
+            <ul>
+                <li>Responsive design, adapting to different devices</li>
+                <li>Smart routing: AI moderator automatically determines which roles should respond to messages</li>
+                <li>Streaming API responses, real-time chat display</li>
+                <li>Local storage for chat history</li>
+                <li>Support for GitHub Pages and Cloudflare Pages deployment</li>
+            </ul>
+
+            <h2>Deployment Links</h2>
+            <p>
+                <a href="https://ricardo-m-j.github.io/trae-lottery-demo/" class="link-btn" target="_blank">GitHub Pages</a>
+                <a href="https://trae-lottery-demo-v2.pages.dev/" class="link-btn secondary" target="_blank">Cloudflare Pages</a>
+            </p>
+
+            <h2>Local Development</h2>
+            <div class="code-block">
+git clone https://github.com/Ricardo-M-J/trae-solo-hackathon-lab.git<br>
+cd trae-solo-hackathon-lab<br>
+npm install<br>
+npm run dev
+            </div>
+
+            <h2>Project Structure</h2>
+            <ul>
+                <li><code>src/</code>: Source code
+                    <ul>
+                        <li><code>pages/</code>: Page components
+                            <ul>
+                                <li><code>Home/</code>: Home page</li>
+                                <li><code>Chat/</code>: AI chat page</li>
+                                <li><code>Lottery/</code>: Lottery page</li>
+                            </ul>
+                        </li>
+                        <li><code>components/</code>: Common components</li>
+                        <li><code>styles/</code>: Style files</li>
+                        <li><code>services/</code>: Services (e.g., AI API calls)</li>
+                    </ul>
+                </li>
+                <li><code>public/</code>: Static resources</li>
+            </ul>
+
+            <h2>Core Features</h2>
+            <h3>1. Roadshow Lottery System</h3>
+            <ul>
+                <li>Supports manual input of number of winners</li>
+                <li>Random winner selection</li>
+                <li>Animated display effects</li>
+            </ul>
+
+            <h3>2. AI Meeting Room</h3>
+            <ul>
+                <li>Four AI roles: Product Manager, Designer, Developer, Tester</li>
+                <li>Smart routing: Moderator AI automatically determines which roles should respond to messages</li>
+                <li>Supports 1v1 chat and group chat modes</li>
+                <li>Streaming API responses, real-time chat display</li>
+            </ul>
+
+            <h2>Environment Variables</h2>
+            <p>The project uses the following environment variables:</p>
+            <div class="code-block">
+VITE_BASE_PATH=/trae-lottery-demo<br>
+VITE_KIMI_API_KEY=Your Kimi API key<br>
+VITE_PM_API_KEY=Product Manager role API key<br>
+VITE_DESIGNER_API_KEY=Designer role API key<br>
+VITE_DEV_API_KEY=Developer role API key<br>
+VITE_QA_API_KEY=Tester role API key
+            </div>
+
+            <h2>License</h2>
+            <p>MIT License</p>
+
+            <div class="note">
+                <p>This project demonstrates how to use Trae Solo as a learning tool to complete a full hackathon project through learning-by-doing, featuring two practical systems.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Trae Solo Hackathon Lab Project | 
+                <a href="https://github.com/Ricardo-M-J/trae-solo-hackathon-lab" target="_blank">GitHub Repository</a> | 
+                <a href="README.md">Original README</a>
+            </p>
+            <p>语言切换功能使用纯 HTML/CSS/JavaScript 实现，无需后端支持</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageButtons = document.querySelectorAll('.language-btn');
+            const contentZh = document.getElementById('content-zh');
+            const contentEn = document.getElementById('content-en');
+            
+            // 从localStorage获取保存的语言偏好
+            const savedLanguage = localStorage.getItem('preferred-language') || 'zh';
+            
+            // 初始化语言
+            setLanguage(savedLanguage);
+            
+            languageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    setLanguage(lang);
+                    
+                    // 保存偏好到localStorage
+                    localStorage.setItem('preferred-language', lang);
+                });
+            });
+            
+            function setLanguage(lang) {
+                // 更新按钮状态
+                languageButtons.forEach(btn => {
+                    if (btn.getAttribute('data-lang') === lang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // 显示对应内容
+                if (lang === 'zh') {
+                    contentZh.classList.add('active');
+                    contentEn.classList.remove('active');
+                    document.documentElement.lang = 'zh';
+                } else {
+                    contentZh.classList.remove('active');
+                    contentEn.classList.add('active');
+                    document.documentElement.lang = 'en';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
