@@ -16,7 +16,7 @@ class AIService {
       name: 'kimi',
       generate: async (messages, agent) => {
         // 使用Cloudflare Worker代理API地址，保护API密钥
-        const apiProxyUrl = import.meta.env.VITE_API_PROXY_URL || 'https://api.trae-solo-hackathon-lab.pages.dev/api/chat';
+        const apiProxyUrl = import.meta.env.VITE_API_PROXY_URL || 'https://trae-solo-api-proxy.1463940581.workers.dev/api/chat';
         const systemPrompt = this.getAgentPrompt(agent);
 
         try {
